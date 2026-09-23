@@ -57,9 +57,6 @@
     
     button.btn-primary { background: var(--primary-red); color: var(--pure-white); font-weight: bold; cursor: pointer; border: none; padding: 14px; border-radius: 6px; transition: 0.2s; text-transform: uppercase; letter-spacing: 0.5px; font-size: 0.9rem; }
     button.btn-primary:hover { opacity: 0.9; background: #990303; }
-    
-    button.btn-secondary { background: #222; color: #fff; border: 1px solid #444; padding: 10px; border-radius: 6px; cursor: pointer; font-weight: bold; font-size: 0.8rem; }
-    button.btn-secondary:hover { background: #333; }
 
     .table-container { width: 100%; overflow-x: auto; -webkit-overflow-scrolling: touch; margin-top: 8px; }
     table { width: 100%; border-collapse: collapse; min-width: 600px; }
@@ -76,7 +73,6 @@
 
     .status-msg { font-size: 0.8rem; color: var(--accent-green); font-weight: bold; display: none; margin-top: -5px; margin-bottom: 5px; }
 
-    /* Login Version Tag */
     .login-version-footer {
       margin-top: 18px;
       padding-top: 10px;
@@ -95,20 +91,16 @@
     <div class="auth-card">
       <div>
         <h2>AT THE MILE <span>LOGISTICS</span></h2>
-        <p style="color: var(--text-muted); font-size: 0.8rem; margin-bottom: 15px;">DriversHub Member Verification</p>
+        <p style="color: var(--text-muted); font-size: 0.8rem; margin-bottom: 15px;">Driver Portal Verification</p>
         
         <form onsubmit="handleLogin(event)">
-          <!-- STEP 1: UID INPUT -->
-          <label style="text-align: left; font-size: 0.7rem; color: var(--text-muted);">STEP 1: ENTER DRIVERSHUB UID</label>
-          <div style="display: flex; gap: 8px;">
-            <input type="text" id="loginUid" placeholder="e.g. DH-8402" required>
-            <button type="button" class="btn-secondary" onclick="fetchDriversHubName()">Fetch</button>
-          </div>
-          <div id="statusMsg" class="status-msg">✓ Driver Profile Located</div>
+          <!-- STEP 1: DRIVER NAME -->
+          <label style="text-align: left; font-size: 0.7rem; color: var(--text-muted);">STEP 1: ENTER DRIVER FULL NAME</label>
+          <input type="text" id="loginName" placeholder="e.g. Angus Ferrari or Syverro" oninput="generateDriverCode()" required>
 
-          <!-- STEP 2: PULLED DRIVER NAME -->
-          <label style="text-align: left; font-size: 0.7rem; color: var(--text-muted); margin-top: 5px;">STEP 2: DRIVER NAME (PULLED FROM HUB)</label>
-          <input type="text" id="loginName" placeholder="Driver Name will pull here..." required readonly style="opacity: 0.8; background: #1a1a1a;">
+          <!-- STEP 2: AUTO-GENERATED LOGIN CODE -->
+          <label style="text-align: left; font-size: 0.7rem; color: var(--text-muted); margin-top: 5px;">STEP 2: GENERATED DRIVER LOGIN ID</label>
+          <input type="text" id="generatedCode" placeholder="ATM-DRIVER-CODE" required readonly style="opacity: 0.8; background: #1a1a1a; color: var(--accent-green); font-weight: bold;">
 
           <!-- STEP 3: DIVISION SELECT -->
           <label style="text-align: left; font-size: 0.7rem; color: var(--text-muted); margin-top: 5px;">STEP 3: SELECT DIVISION</label>
@@ -149,7 +141,7 @@
   <div id="jobcard" class="tab-content active">
     <div class="grid">
       <div class="card">
-        <h3>Complete Driver Job Card <span style="font-size: 0.75rem; color: var(--text-muted);">DRIVERSHUB PORTAL</span></h3>
+        <h3>Complete Driver Job Card <span style="font-size: 0.75rem; color: var(--text-muted);">ATM PORTAL</span></h3>
         <form id="jobCardForm" onsubmit="submitJobCard(event)">
           <div class="form-row">
             <div>
@@ -157,8 +149,8 @@
               <input type="text" id="cardDriver" required readonly style="opacity: 0.7;">
             </div>
             <div>
-              <label style="font-size: 0.7rem; color: var(--text-muted);">DRIVERSHUB UID</label>
-              <input type="text" id="cardUid" required readonly style="opacity: 0.7;">
+              <label style="font-size: 0.7rem; color: var(--text-muted);">DRIVER ID CODE</label>
+              <input type="text" id="cardDriverCode" required readonly style="opacity: 0.7; color: var(--accent-green);">
             </div>
           </div>
 
@@ -226,7 +218,7 @@
           <thead>
             <tr>
               <th>Time</th>
-              <th>Driver (UID)</th>
+              <th>Driver (Login Code)</th>
               <th>Division</th>
               <th>Rig / Trailer</th>
               <th>Cargo</th>
@@ -249,7 +241,7 @@
         <h3>Scale House Log</h3>
         <form id="scaleForm" onsubmit="logScale(event)">
           <input type="text" id="scaleDriver" placeholder="Driver Name" required readonly style="opacity: 0.7;">
-          <input type="text" id="scaleUid" placeholder="DriversHub UID" required readonly style="opacity: 0.7;">
+          <input type="text" id="scaleCode" placeholder="Driver Code" required readonly style="opacity: 0.7;">
           <input type="text" id="scaleVehicle" placeholder="Rig ID (e.g. KW #04)" required>
           <input type="number" id="scaleWeight" placeholder="Gross Weight (Tons)" required>
           <input type="number" id="scaleLimit" placeholder="Max Limit (Tons)" value="42" required>
@@ -263,7 +255,7 @@
             <thead>
               <tr>
                 <th>Time</th>
-                <th>Driver (UID)</th>
+                <th>Driver (Code)</th>
                 <th>Rig ID</th>
                 <th>Weight</th>
                 <th>Limit</th>
@@ -278,43 +270,42 @@
   </div>
 
   <script>
-    // AUTO-UPDATE SYSTEM VERSION NUMBER
-    const APP_VERSION = "v1.4.2";
+    // VERSION NUMBER
+    const APP_VERSION = "v1.5.0";
 
     let currentUser = JSON.parse(localStorage.getItem('atm_user')) || null;
     let jobCards = JSON.parse(localStorage.getItem('atm_job_cards')) || [];
     let scaleLogs = JSON.parse(localStorage.getItem('atm_scale')) || [];
 
-    const driversHubRoster = {
-      "DH-1001": "Angus Ferrari",
-      "DH-1002": "Syverro",
-      "DH-1003": "John Doe",
-      "DH-1004": "Alex Smith"
-    };
-
-    // Populate version across screen elements on load
     function initVersionTag() {
       document.getElementById('loginVersionDisplay').innerText = APP_VERSION;
     }
 
-    function fetchDriversHubName() {
-      const uidInput = document.getElementById('loginUid').value.trim().toUpperCase();
-      const nameInput = document.getElementById('loginName');
-      const statusMsg = document.getElementById('statusMsg');
+    // AUTOMATIC LOGIN ID GENERATOR BASED ON NAME
+    function generateDriverCode() {
+      const name = document.getElementById('loginName').value.trim();
+      const codeOutput = document.getElementById('generatedCode');
 
-      if (!uidInput) {
-        alert("Please enter a DriversHub UID first.");
+      if (!name) {
+        codeOutput.value = "";
         return;
       }
 
-      if (driversHubRoster[uidInput]) {
-        nameInput.value = driversHubRoster[uidInput];
+      const parts = name.split(/\s+/);
+      let initials = "";
+      let lastName = "";
+
+      if (parts.length === 1) {
+        // Single word username e.g. "Syverro" -> "ATM-SY-SYVERRO"
+        initials = parts[0].substring(0, 2).toUpperCase();
+        lastName = parts[0].toUpperCase();
       } else {
-        nameInput.value = "Driver " + uidInput;
+        // Full Name e.g. "Angus Ferrari" -> "ATM-AF-FERRARI"
+        initials = (parts[0][0] + parts[parts.length - 1][0]).toUpperCase();
+        lastName = parts[parts.length - 1].toUpperCase();
       }
 
-      statusMsg.style.display = "block";
-      statusMsg.innerText = `✓ Profile verified for ${nameInput.value}`;
+      codeOutput.value = `ATM-${initials}-${lastName}`;
     }
 
     function checkAuth() {
@@ -322,28 +313,26 @@
         document.getElementById('authOverlay').style.display = 'flex';
       } else {
         document.getElementById('authOverlay').style.display = 'none';
-        document.getElementById('currentUserDisplay').innerText = `${currentUser.name} [${currentUser.uid}] (${currentUser.department})`;
+        document.getElementById('currentUserDisplay').innerText = `${currentUser.name} [${currentUser.driverCode}] (${currentUser.department})`;
         
+        // AUTOFILL
         document.getElementById('cardDriver').value = currentUser.name;
-        document.getElementById('cardUid').value = currentUser.uid;
+        document.getElementById('cardDriverCode').value = currentUser.driverCode;
         document.getElementById('cardDept').value = currentUser.department;
 
         document.getElementById('scaleDriver').value = currentUser.name;
-        document.getElementById('scaleUid').value = currentUser.uid;
+        document.getElementById('scaleCode').value = currentUser.driverCode;
       }
     }
 
     function handleLogin(e) {
       e.preventDefault();
-      let driverName = document.getElementById('loginName').value;
-      if (!driverName) {
-        fetchDriversHubName();
-        driverName = document.getElementById('loginName').value;
-      }
+      const name = document.getElementById('loginName').value.trim();
+      const driverCode = document.getElementById('generatedCode').value;
 
       currentUser = {
-        uid: document.getElementById('loginUid').value.trim().toUpperCase(),
-        name: driverName,
+        name: name,
+        driverCode: driverCode,
         department: document.getElementById('loginDepartment').value
       };
       
@@ -354,9 +343,8 @@
     function logout() {
       localStorage.removeItem('atm_user');
       currentUser = null;
-      document.getElementById('loginUid').value = '';
       document.getElementById('loginName').value = '';
-      document.getElementById('statusMsg').style.display = 'none';
+      document.getElementById('generatedCode').value = '';
       checkAuth();
     }
 
@@ -372,7 +360,7 @@
       const newCard = {
         time: new Date().toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'}),
         driver: document.getElementById('cardDriver').value,
-        uid: document.getElementById('cardUid').value,
+        driverCode: document.getElementById('cardDriverCode').value,
         department: document.getElementById('cardDept').value,
         rig: document.getElementById('cardRig').value,
         trailer: document.getElementById('cardTrailer').value,
@@ -397,7 +385,7 @@
       document.getElementById('cardFuel').value = '';
       document.getElementById('cardNotes').value = '';
 
-      alert("Job Card successfully saved to History Logs!");
+      alert("Job Card successfully saved under Driver ID: " + currentUser.driverCode);
       switchTab('history');
     }
 
@@ -412,7 +400,7 @@
         tbody.innerHTML += `
           <tr>
             <td>${card.time}</td>
-            <td><strong>${card.driver}</strong> (${card.uid})</td>
+            <td><strong>${card.driver}</strong> (${card.driverCode})</td>
             <td>${card.department}</td>
             <td>${card.rig} / ${card.trailer}</td>
             <td><span class="badge badge-completed">${card.cargo}</span></td>
@@ -430,7 +418,7 @@
       scaleLogs.unshift({
         time: new Date().toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'}),
         driver: document.getElementById('scaleDriver').value,
-        uid: document.getElementById('scaleUid').value,
+        driverCode: document.getElementById('scaleCode').value,
         vehicle: document.getElementById('scaleVehicle').value,
         weight: parseFloat(document.getElementById('scaleWeight').value),
         limit: parseFloat(document.getElementById('scaleLimit').value)
@@ -450,7 +438,7 @@
         tbody.innerHTML += `
           <tr>
             <td>${log.time}</td>
-            <td><strong>${log.driver}</strong> (${log.uid})</td>
+            <td><strong>${log.driver}</strong> (${log.driverCode})</td>
             <td>${log.vehicle}</td>
             <td>${log.weight} T</td>
             <td>${log.limit} T</td>
