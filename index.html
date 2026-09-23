@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-  <title>ATM Logistics - RP Command Center</title>
+  <title>ATM Logistics - Central Command Portal</title>
   <style>
     :root {
       --primary-red: #770202;
@@ -16,6 +16,7 @@
       --text-muted: #a3a3a3;
       --accent-green: #22c55e;
       --accent-amber: #f59e0b;
+      --accent-blue: #3b82f6;
     }
 
     * { box-sizing: border-box; margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif; }
@@ -26,11 +27,13 @@
     .logo span { color: var(--primary-red); }
     .user-badge { background: var(--pure-black); padding: 8px 12px; border-radius: 6px; border: 1px solid var(--primary-red); font-size: 0.8rem; width: 100%; display: flex; justify-content: space-between; align-items: center; }
 
-    /* AUTH MODAL */
-    #authOverlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0, 0, 0, 0.96); display: flex; justify-content: center; align-items: center; z-index: 999; padding: 15px; }
-    .auth-card { background: var(--bg-card); border: 2px solid var(--primary-red); padding: 25px 20px 15px 20px; border-radius: 12px; width: 100%; max-width: 400px; text-align: center; display: flex; flex-direction: column; justify-content: space-between; }
-    .auth-card h2 { color: var(--pure-white); margin-bottom: 4px; font-size: 1.3rem; }
-    .auth-card h2 span { color: var(--primary-red); }
+    /* MODALS */
+    .modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0, 0, 0, 0.92); display: flex; justify-content: center; align-items: center; z-index: 999; padding: 15px; }
+    .modal-card { background: var(--bg-card); border: 2px solid var(--primary-red); padding: 25px 20px 15px 20px; border-radius: 12px; width: 100%; max-width: 500px; max-height: 90vh; overflow-y: auto; display: flex; flex-direction: column; justify-content: space-between; position: relative; }
+    .modal-card h2 { color: var(--pure-white); margin-bottom: 4px; font-size: 1.3rem; }
+    .modal-card h2 span { color: var(--primary-red); }
+    .close-modal-btn { position: absolute; top: 12px; right: 15px; background: transparent; border: none; color: var(--text-muted); font-size: 1.4rem; cursor: pointer; }
+    .close-modal-btn:hover { color: var(--pure-white); }
 
     .nav { display: flex; gap: 6px; margin-bottom: 15px; flex-wrap: wrap; }
     .nav-btn { flex: 1 1 auto; min-width: 110px; text-align: center; background: var(--bg-card); color: var(--pure-white); border: 1px solid var(--border-subtle); padding: 12px 10px; border-radius: 6px; cursor: pointer; font-weight: 700; font-size: 0.85rem; transition: all 0.2s; }
@@ -42,6 +45,20 @@
     .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 15px; margin-bottom: 15px; }
     .card { background: var(--bg-card); border: 1px solid var(--border-subtle); border-top: 3px solid var(--primary-red); border-radius: 8px; padding: 15px; }
     .card h3 { color: var(--pure-white); margin-bottom: 12px; font-size: 1rem; border-bottom: 1px solid var(--border-subtle); padding-bottom: 6px; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; }
+
+    /* DIVISION SELECTOR CARDS ON OVERVIEW */
+    .division-selector-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 15px; margin-bottom: 20px; }
+    .div-card { background: var(--pure-black); border: 1px solid #262626; border-radius: 8px; padding: 18px; text-align: left; cursor: pointer; transition: all 0.2s ease; display: flex; flex-direction: column; justify-content: space-between; position: relative; overflow: hidden; }
+    .div-card:hover { border-color: var(--primary-red); transform: translateY(-2px); background: #121212; }
+    .div-card h4 { font-size: 1.1rem; color: var(--pure-white); margin-bottom: 6px; display: flex; align-items: center; gap: 8px; }
+    .div-card p { font-size: 0.78rem; color: var(--text-muted); line-height: 1.3; margin-bottom: 12px; }
+    .div-card .btn-enter { font-size: 0.75rem; font-weight: bold; color: var(--accent-green); text-transform: uppercase; letter-spacing: 0.5px; }
+
+    /* STATS GRID */
+    .stats-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(130px, 1fr)); gap: 10px; margin-bottom: 15px; }
+    .stat-box { background: var(--pure-black); border: 1px solid #262626; border-left: 3px solid var(--primary-red); padding: 12px; border-radius: 6px; }
+    .stat-box .title { font-size: 0.7rem; color: var(--text-muted); text-transform: uppercase; }
+    .stat-box .value { font-size: 1.3rem; font-weight: bold; color: var(--pure-white); margin-top: 4px; }
 
     form { display: flex; flex-direction: column; gap: 10px; }
     .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
@@ -87,39 +104,58 @@
 </head>
 <body>
 
-  <!-- LOGIN / PROFILE MODAL -->
-  <div id="authOverlay">
-    <div class="auth-card">
+  <!-- LOGIN / PROFILE MODAL (NO DIVISION SELECTION NEEDED HERE) -->
+  <div id="authOverlay" class="modal-overlay">
+    <div class="modal-card" style="max-width: 400px; text-align: center;">
       <div>
         <h2>AT THE MILE <span>LOGISTICS</span></h2>
-        <p style="color: var(--text-muted); font-size: 0.8rem; margin-bottom: 15px;">Driver Portal Verification</p>
+        <p style="color: var(--text-muted); font-size: 0.8rem; margin-bottom: 15px;">Driver Verification</p>
         
         <form onsubmit="handleLogin(event)">
-          <!-- STEP 1: DRIVER NAME -->
-          <label style="text-align: left; font-size: 0.7rem; color: var(--text-muted);">STEP 1: ENTER DRIVER FULL NAME</label>
-          <input type="text" id="loginName" placeholder="e.g. Angus Ferrari or Syverro" oninput="generateDriverCode()" required>
+          <label style="text-align: left; font-size: 0.7rem; color: var(--text-muted);">STEP 1: ENTER DRIVER HANDLE / CALLSIGN</label>
+          <input type="text" id="loginName" placeholder="e.g. Driver_01 or CallSign" oninput="generateDriverCode()" required>
 
-          <!-- STEP 2: AUTO-GENERATED LOGIN CODE -->
           <label style="text-align: left; font-size: 0.7rem; color: var(--text-muted); margin-top: 5px;">STEP 2: GENERATED DRIVER LOGIN ID</label>
           <input type="text" id="generatedCode" placeholder="ATM-DRIVER-CODE" required readonly style="opacity: 0.8; background: #1a1a1a; color: var(--accent-green); font-weight: bold;">
 
-          <!-- STEP 3: DIVISION SELECT -->
-          <label style="text-align: left; font-size: 0.7rem; color: var(--text-muted); margin-top: 5px;">STEP 3: SELECT DIVISION</label>
-          <select id="loginDepartment" required>
-            <option value="">Select Division</option>
-            <option value="Agriculture & Farming">🌾 Agriculture & Farming</option>
-            <option value="Forestry & Logging">🌲 Forestry & Logging</option>
-            <option value="Logistics & Freight">🚛 Logistics & Freight</option>
-            <option value="Operations & Dispatch">📡 Operations & Dispatch</option>
-          </select>
-
-          <button type="submit" class="btn-primary" style="margin-top: 10px;">Enter Main Screen</button>
+          <button type="submit" class="btn-primary" style="margin-top: 15px;">Access Central Command</button>
         </form>
       </div>
 
       <div class="login-version-footer">
         Portal Version: <span id="loginVersionDisplay" style="color: var(--pure-white); font-weight: bold;">--</span>
       </div>
+    </div>
+  </div>
+
+  <!-- NEW SPECIALTY LOG MODAL -->
+  <div id="newLogModal" class="modal-overlay" style="display: none;">
+    <div class="modal-card">
+      <button class="close-modal-btn" onclick="closeLogModal()">✕</button>
+      <h3><span id="popoutModalTitle">New Specialty Job Card</span></h3>
+      <p style="font-size: 0.75rem; color: var(--text-muted); margin-bottom: 12px;" id="popoutModalSub">File operational log</p>
+      
+      <form id="jobCardForm" onsubmit="submitJobCard(event)">
+        <div class="form-row">
+          <div>
+            <label style="font-size: 0.7rem; color: var(--text-muted);">DRIVER HANDLE</label>
+            <input type="text" id="cardDriver" required readonly style="opacity: 0.7;">
+          </div>
+          <div>
+            <label style="font-size: 0.7rem; color: var(--text-muted);">DRIVER ID CODE</label>
+            <input type="text" id="cardDriverCode" required readonly style="opacity: 0.7; color: var(--accent-green);">
+          </div>
+        </div>
+
+        <div id="dynamicFormFields"></div>
+
+        <div>
+          <label style="font-size: 0.7rem; color: var(--text-muted);">FIELD / SHIFT NOTES & COMMENTS</label>
+          <input type="text" id="cardNotes" placeholder="e.g. Weather conditions, site instructions...">
+        </div>
+
+        <button type="submit" class="btn-primary">File Official Job Card</button>
+      </form>
     </div>
   </div>
 
@@ -132,48 +168,164 @@
   </header>
 
   <div class="nav">
-    <button class="nav-btn active" onclick="switchTab('jobcard')">📋 Specialty Job Card</button>
-    <button class="nav-btn" onclick="switchTab('history')">📂 History Logs</button>
+    <button class="nav-btn active" onclick="switchTab('landing')">🌐 Central Fleet Overview</button>
+    <button class="nav-btn" onclick="switchTab('specialty')">📋 Specialty Division View</button>
+    <button class="nav-btn" onclick="switchTab('history')">📂 Global Logs</button>
+    <button class="nav-btn" onclick="switchTab('mylogs')">👤 My Logs</button>
     <button class="nav-btn" onclick="switchTab('scale')">⚖️ Weigh-In</button>
   </div>
 
-  <!-- MAIN SCREEN - TAB 1: DYNAMIC DIVISION JOB CARD -->
-  <div id="jobcard" class="tab-content active">
-    <div class="grid">
-      <div class="card">
-        <h3><span id="jobCardTitle">Job Card</span> <span style="font-size: 0.75rem; color: var(--text-muted);" id="divisionSubBadge">ATM PORTAL</span></h3>
-        <form id="jobCardForm" onsubmit="submitJobCard(event)">
-          
-          <!-- FIXED DRIVER DETAILS -->
-          <div class="form-row">
-            <div>
-              <label style="font-size: 0.7rem; color: var(--text-muted);">DRIVER NAME</label>
-              <input type="text" id="cardDriver" required readonly style="opacity: 0.7;">
-            </div>
-            <div>
-              <label style="font-size: 0.7rem; color: var(--text-muted);">DRIVER ID CODE</label>
-              <input type="text" id="cardDriverCode" required readonly style="opacity: 0.7; color: var(--accent-green);">
-            </div>
-          </div>
+  <!-- TAB 1: CENTRAL OVERVIEW LANDING DASHBOARD -->
+  <div id="landing" class="tab-content active">
+    <div class="card" style="margin-bottom: 15px;">
+      <h2>Central Fleet Dashboard</h2>
+      <p style="font-size: 0.8rem; color: var(--text-muted); margin-top: 4px;">Overview of all active operations across divisions. Select a specialty division below to view details and submit job cards.</p>
+    </div>
 
-          <!-- DYNAMIC SPECIALTY FIELDS WRAPPER -->
-          <div id="dynamicFormFields"></div>
+    <!-- GLOBAL STATS -->
+    <div class="stats-grid">
+      <div class="stat-box">
+        <div class="title">Total Fleet Jobs</div>
+        <div class="value" id="globalTotalJobs">0</div>
+      </div>
+      <div class="stat-box">
+        <div class="title">Active Operators</div>
+        <div class="value" id="globalActiveDrivers">0</div>
+      </div>
+      <div class="stat-box">
+        <div class="title">Agri & Logs Tonnage</div>
+        <div class="value" id="globalTonnage">0 T</div>
+      </div>
+      <div class="stat-box">
+        <div class="title">Distance / Hours</div>
+        <div class="value" id="globalDistance">0 km</div>
+      </div>
+    </div>
 
-          <div>
-            <label style="font-size: 0.7rem; color: var(--text-muted);">FIELD / SHIFT NOTES & COMMENTS</label>
-            <input type="text" id="cardNotes" placeholder="e.g. Cleared by site dispatch, weather condition updates...">
-          </div>
+    <!-- DIVISION SELECTOR CARDS -->
+    <h3 style="margin-bottom: 10px; font-size: 0.95rem; color: var(--text-muted);">SELECT SPECIALTY DIVISION</h3>
+    <div class="division-selector-grid">
+      <div class="div-card" onclick="selectSpecialtyDivision('Agriculture & Farming')">
+        <div>
+          <h4>🌾 Agriculture & Farming</h4>
+          <p>Harvester ops, paddock-to-silo haulage, crop moisture monitoring & grain handling.</p>
+        </div>
+        <div class="btn-enter">Open Division View ➔</div>
+      </div>
 
-          <button type="submit" class="btn-primary" id="submitBtnText">File Official Job Card</button>
-        </form>
+      <div class="div-card" onclick="selectSpecialtyDivision('Forestry & Logging')">
+        <div>
+          <h4>🌲 Forestry & Logging</h4>
+          <p>Coupe clearing, timber species & pulp logging, bolster trailer loads & mill transport.</p>
+        </div>
+        <div class="btn-enter">Open Division View ➔</div>
+      </div>
+
+      <div class="div-card" onclick="selectSpecialtyDivision('Logistics & Freight')">
+        <div>
+          <h4>🚛 Logistics & Freight</h4>
+          <p>Long-haul highway freight, palletized cargo, reefer loads & depot logistics.</p>
+        </div>
+        <div class="btn-enter">Open Division View ➔</div>
+      </div>
+
+      <div class="div-card" onclick="selectSpecialtyDivision('Operations & Dispatch')">
+        <div>
+          <h4>📡 Operations & Dispatch</h4>
+          <p>Command fleet routing, road safety coordination, traffic status & incident reporting.</p>
+        </div>
+        <div class="btn-enter">Open Division View ➔</div>
+      </div>
+    </div>
+
+    <!-- RECENT ALL-DIVISION ACTIVITY FEED -->
+    <div class="card">
+      <h3>Live Operations Feed (All Divisions)</h3>
+      <div class="table-container">
+        <table>
+          <thead>
+            <tr>
+              <th>Time</th>
+              <th>Driver (Code)</th>
+              <th>Division</th>
+              <th>Equipment / Machine</th>
+              <th>Payload / Cargo</th>
+              <th>Route / Location</th>
+              <th>Metrics</th>
+            </tr>
+          </thead>
+          <tbody id="globalRecentTable"></tbody>
+        </table>
       </div>
     </div>
   </div>
 
-  <!-- MAIN SCREEN - TAB 2: JOB HISTORY LOGS -->
+  <!-- TAB 2: SPECIALTY DIVISION PAGE -->
+  <div id="specialty" class="tab-content">
+    <div class="card" style="margin-bottom: 15px;">
+      <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px;">
+        <div>
+          <h2 id="specialtyTitle">Agriculture & Farming Division</h2>
+          <p id="specialtySub" style="font-size: 0.8rem; color: var(--text-muted);">Specialty Division Screen</p>
+        </div>
+        <div style="display: flex; gap: 8px;">
+          <select id="divisionQuickSelect" onchange="selectSpecialtyDivision(this.value)" style="width: auto; font-size: 0.8rem; padding: 8px 12px;">
+            <option value="Agriculture & Farming">🌾 Agriculture & Farming</option>
+            <option value="Forestry & Logging">🌲 Forestry & Logging</option>
+            <option value="Logistics & Freight">🚛 Logistics & Freight</option>
+            <option value="Operations & Dispatch">📡 Operations & Dispatch</option>
+          </select>
+          <button class="btn-primary" onclick="openLogModal()" style="padding: 10px 16px; font-size: 0.8rem;">+ File Job Card</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- DIVISION SPECIFIC STATS -->
+    <div class="stats-grid">
+      <div class="stat-box">
+        <div class="title">Division Jobs</div>
+        <div class="value" id="divStatTotal">0</div>
+      </div>
+      <div class="stat-box">
+        <div class="title">Active Drivers</div>
+        <div class="value" id="divStatDrivers">0</div>
+      </div>
+      <div class="stat-box">
+        <div class="title">Division Volume / Tonnage</div>
+        <div class="value" id="divStatTonnage">0 T</div>
+      </div>
+      <div class="stat-box">
+        <div class="title">Shift Units / Distance</div>
+        <div class="value" id="divStatDistance">0 km</div>
+      </div>
+    </div>
+
+    <!-- DIVISION RECENT LOGS -->
+    <div class="card">
+      <h3>Division Logs <span style="font-size: 0.75rem; color: var(--text-muted);" id="specialtyBadgeLabel">DIVISION</span></h3>
+      <div class="table-container">
+        <table>
+          <thead>
+            <tr>
+              <th>Time</th>
+              <th>Driver (Code)</th>
+              <th>Equipment / Machine</th>
+              <th>Payload / Cargo</th>
+              <th>Route / Sector</th>
+              <th>Metrics</th>
+              <th>Notes</th>
+            </tr>
+          </thead>
+          <tbody id="specialtyTable"></tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <!-- TAB 3: GLOBAL LOGS -->
   <div id="history" class="tab-content">
     <div class="card">
-      <h3>Filed Job Cards & Operations Logs</h3>
+      <h3>Global Operations Logs (All Divisions)</h3>
       <div class="table-container">
         <table>
           <thead>
@@ -184,7 +336,7 @@
               <th>Equipment / Rig</th>
               <th>Payload / Task</th>
               <th>Location / Route</th>
-              <th>Metrics / Distance</th>
+              <th>Metrics</th>
               <th>Notes</th>
             </tr>
           </thead>
@@ -194,13 +346,36 @@
     </div>
   </div>
 
-  <!-- MAIN SCREEN - TAB 3: WEIGH-IN TICKET -->
+  <!-- TAB 4: PERSONAL LOGS -->
+  <div id="mylogs" class="tab-content">
+    <div class="card">
+      <h3>My Previous Logged Cards</h3>
+      <div class="table-container">
+        <table>
+          <thead>
+            <tr>
+              <th>Time</th>
+              <th>Division</th>
+              <th>Equipment</th>
+              <th>Payload / Task</th>
+              <th>Location / Route</th>
+              <th>Metrics</th>
+              <th>Notes</th>
+            </tr>
+          </thead>
+          <tbody id="myLogsTable"></tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <!-- TAB 5: WEIGH-IN TICKET -->
   <div id="scale" class="tab-content">
     <div class="grid">
       <div class="card">
         <h3>Scale House Log</h3>
         <form id="scaleForm" onsubmit="logScale(event)">
-          <input type="text" id="scaleDriver" placeholder="Driver Name" required readonly style="opacity: 0.7;">
+          <input type="text" id="scaleDriver" placeholder="Driver Handle" required readonly style="opacity: 0.7;">
           <input type="text" id="scaleCode" placeholder="Driver Code" required readonly style="opacity: 0.7;">
           <input type="text" id="scaleVehicle" placeholder="Rig / Machine ID (e.g. KW #04)" required>
           <input type="number" id="scaleWeight" placeholder="Gross Weight (Tons)" required>
@@ -230,14 +405,13 @@
   </div>
 
   <script>
-    const APP_VERSION = "v1.7.0";
+    const APP_VERSION = "v2.1.0";
 
-    // SESSION STORAGE USAGE: SESSION ENDS WHEN TAB IS CLOSED OR NAVIGATED AWAY
     let currentUser = JSON.parse(sessionStorage.getItem('atm_user')) || null;
+    let activeSpecialtyDivision = "Agriculture & Farming";
     let jobCards = JSON.parse(localStorage.getItem('atm_job_cards')) || [];
     let scaleLogs = JSON.parse(localStorage.getItem('atm_scale')) || [];
 
-    // AUTO LOGOUT LISTENERS
     window.addEventListener('beforeunload', () => {
       sessionStorage.removeItem('atm_user');
     });
@@ -270,14 +444,68 @@
       codeOutput.value = `ATM-${initials}-${lastName}`;
     }
 
+    function selectSpecialtyDivision(divisionName) {
+      activeSpecialtyDivision = divisionName;
+      document.getElementById('divisionQuickSelect').value = divisionName;
+      renderSpecialtyDivisionView();
+      renderDivisionForm(divisionName);
+      switchTab('specialty');
+    }
+
+    function renderSpecialtyDivisionView() {
+      const title = document.getElementById('specialtyTitle');
+      const sub = document.getElementById('specialtySub');
+      const label = document.getElementById('specialtyBadgeLabel');
+
+      title.innerText = `${activeSpecialtyDivision} Specialty View`;
+      sub.innerText = `Division Hub | Custom Forms & Activity Feed`;
+      label.innerText = activeSpecialtyDivision;
+
+      const divLogs = jobCards.filter(c => c.department === activeSpecialtyDivision);
+
+      document.getElementById('divStatTotal').innerText = divLogs.length;
+      document.getElementById('divStatDrivers').innerText = new Set(divLogs.map(c => c.driverCode)).size;
+
+      let tonnageSum = 0;
+      let distSum = 0;
+      divLogs.forEach(c => {
+        const tonMatch = c.metrics.match(/(\d+(\.\d+)?)\s*T/i);
+        if (tonMatch) tonnageSum += parseFloat(tonMatch[1]);
+        const distMatch = c.metrics.match(/(\d+(\.\d+)?)\s*(km|hrs|Field Hrs|Shift Hrs)/i);
+        if (distMatch) distSum += parseFloat(distMatch[1]);
+      });
+
+      document.getElementById('divStatTonnage').innerText = tonnageSum > 0 ? `${tonnageSum.toFixed(1)} T` : `${divLogs.length * 18} T (Est.)`;
+      document.getElementById('divStatDistance').innerText = distSum > 0 ? `${distSum.toFixed(1)} Units` : `${divLogs.length * 40} Km (Est.)`;
+
+      const tbody = document.getElementById('specialtyTable');
+      tbody.innerHTML = '';
+      if (divLogs.length === 0) {
+        tbody.innerHTML = `<tr><td colspan="7" style="text-align:center; color: var(--text-muted);">No job cards logged in ${activeSpecialtyDivision} yet.</td></tr>`;
+        return;
+      }
+
+      divLogs.forEach(card => {
+        tbody.innerHTML += `
+          <tr>
+            <td>${card.time}</td>
+            <td><strong>${card.driver}</strong> (${card.driverCode})</td>
+            <td>${card.equipment}</td>
+            <td>${card.payload}</td>
+            <td>${card.route}</td>
+            <td>${card.metrics}</td>
+            <td>${card.notes}</td>
+          </tr>
+        `;
+      });
+    }
+
     function renderDivisionForm(division) {
       const container = document.getElementById('dynamicFormFields');
-      const title = document.getElementById('jobCardTitle');
-      const badge = document.getElementById('divisionSubBadge');
+      const title = document.getElementById('popoutModalTitle');
 
       if (division === "Agriculture & Farming") {
-        title.innerText = "🌾 Agricultural Haul & Field Card";
-        badge.innerText = "AGRI DIVISION";
+        title.innerText = "🌾 Agricultural Field Card";
         container.innerHTML = `
           <div class="form-row">
             <div>
@@ -312,7 +540,7 @@
           <div class="form-row">
             <div>
               <label style="font-size: 0.7rem; color: var(--text-muted);">TOTAL TONNAGE / BALES LOADED</label>
-              <input type="text" id="cardMetric2" placeholder="e.g. 38 Tons / 45 Bales" required>
+              <input type="text" id="cardMetric2" placeholder="e.g. 38 Tons" required>
             </div>
             <div>
               <label style="font-size: 0.7rem; color: var(--text-muted);">ENGINE / FIELD HOURS</label>
@@ -322,7 +550,6 @@
         `;
       } else if (division === "Forestry & Logging") {
         title.innerText = "🌲 Forestry Logging Card";
-        badge.innerText = "LOGGING DIVISION";
         container.innerHTML = `
           <div class="form-row">
             <div>
@@ -351,13 +578,13 @@
             </div>
             <div>
               <label style="font-size: 0.7rem; color: var(--text-muted);">DESTINATION PAPER / SAW MILL</label>
-              <input type="text" id="cardDestination" placeholder="e.g. Colac Sawmill Plant" required>
+              <input type="text" id="cardDestination" placeholder="e.g. Sawmill Plant" required>
             </div>
           </div>
           <div class="form-row">
             <div>
-              <label style="font-size: 0.7rem; color: var(--text-muted);">LOG COUNT / GROSS TONNAGE</label>
-              <input type="text" id="cardMetric2" placeholder="e.g. 28 Logs / 44.5 Tons" required>
+              <label style="font-size: 0.7rem; color: var(--text-muted);">GROSS TONNAGE / LOG COUNT</label>
+              <input type="text" id="cardMetric2" placeholder="e.g. 44 Tons" required>
             </div>
             <div>
               <label style="font-size: 0.7rem; color: var(--text-muted);">HAUL DISTANCE (KM)</label>
@@ -367,7 +594,6 @@
         `;
       } else if (division === "Operations & Dispatch") {
         title.innerText = "📡 Operations & Dispatch Log";
-        badge.innerText = "OPS DIVISION";
         container.innerHTML = `
           <div class="form-row">
             <div>
@@ -396,13 +622,13 @@
             </div>
             <div>
               <label style="font-size: 0.7rem; color: var(--text-muted);">STATUS REPORT</label>
-              <input type="text" id="cardDestination" placeholder="e.g. All Routes Clear / Roadworks Sector B" required>
+              <input type="text" id="cardDestination" placeholder="e.g. All Routes Clear" required>
             </div>
           </div>
           <div class="form-row">
             <div>
-              <label style="font-size: 0.7rem; color: var(--text-muted);">INCIDENTS LOGGED</label>
-              <input type="text" id="cardMetric2" placeholder="e.g. 0 Incidents / 1 Breakdown Assisted" required>
+              <label style="font-size: 0.7rem; color: var(--text-muted);">INCIDENTS / UNITS LOGGED</label>
+              <input type="text" id="cardMetric2" placeholder="e.g. 0 Incidents" required>
             </div>
             <div>
               <label style="font-size: 0.7rem; color: var(--text-muted);">SHIFT HOURS</label>
@@ -412,13 +638,12 @@
         `;
       } else {
         // DEFAULT: LOGISTICS & FREIGHT
-        title.innerText = "🚛 Logistics & Freight Haul Card";
-        badge.innerText = "FREIGHT DIVISION";
+        title.innerText = "🚛 Freight Haul Card";
         container.innerHTML = `
           <div class="form-row">
             <div>
               <label style="font-size: 0.7rem; color: var(--text-muted);">RIG / TRUCK ID USED</label>
-              <input type="text" id="cardRig" placeholder="e.g. Kenworth T680 #04" required>
+              <input type="text" id="cardRig" placeholder="e.g. Freightliner #04" required>
             </div>
             <div>
               <label style="font-size: 0.7rem; color: var(--text-muted);">TRAILER TYPE / ID</label>
@@ -464,16 +689,25 @@
         document.getElementById('authOverlay').style.display = 'flex';
       } else {
         document.getElementById('authOverlay').style.display = 'none';
-        document.getElementById('currentUserDisplay').innerText = `${currentUser.name} [${currentUser.driverCode}] (${currentUser.department})`;
+        document.getElementById('currentUserDisplay').innerText = `${currentUser.name} [${currentUser.driverCode}]`;
         
-        renderDivisionForm(currentUser.department);
-
-        document.getElementById('cardDriver').value = currentUser.name;
-        document.getElementById('cardDriverCode').value = currentUser.driverCode;
+        renderDivisionForm(activeSpecialtyDivision);
+        updateLandingDashboard();
 
         document.getElementById('scaleDriver').value = currentUser.name;
         document.getElementById('scaleCode').value = currentUser.driverCode;
       }
+    }
+
+    function openLogModal() {
+      document.getElementById('cardDriver').value = currentUser.name;
+      document.getElementById('cardDriverCode').value = currentUser.driverCode;
+      document.getElementById('popoutModalSub').innerText = `Division Filing: ${activeSpecialtyDivision}`;
+      document.getElementById('newLogModal').style.display = 'flex';
+    }
+
+    function closeLogModal() {
+      document.getElementById('newLogModal').style.display = 'none';
     }
 
     function handleLogin(e) {
@@ -483,11 +717,9 @@
 
       currentUser = {
         name: name,
-        driverCode: driverCode,
-        department: document.getElementById('loginDepartment').value
+        driverCode: driverCode
       };
       
-      // SAVED TO SESSION STORAGE (AUTO CLEARS ON TAB/BROWSER EXIT)
       sessionStorage.setItem('atm_user', JSON.stringify(currentUser));
       checkAuth();
     }
@@ -504,7 +736,64 @@
       document.querySelectorAll('.tab-content').forEach(el => el.classList.remove('active'));
       document.querySelectorAll('.nav-btn').forEach(el => el.classList.remove('active'));
       document.getElementById(tabId).classList.add('active');
-      event.target.classList.add('active');
+      
+      // SYNC ACTIVE NAV BUTTON
+      const btnIndex = ['landing', 'specialty', 'history', 'mylogs', 'scale'].indexOf(tabId);
+      if (btnIndex !== -1) {
+        document.querySelectorAll('.nav-btn')[btnIndex].classList.add('active');
+      }
+
+      if (tabId === 'landing') updateLandingDashboard();
+      if (tabId === 'specialty') renderSpecialtyDivisionView();
+      if (tabId === 'mylogs') renderMyLogs();
+    }
+
+    function updateLandingDashboard() {
+      if (!currentUser) return;
+
+      document.getElementById('globalTotalJobs').innerText = jobCards.length;
+      document.getElementById('globalActiveDrivers').innerText = new Set(jobCards.map(c => c.driverCode)).size;
+
+      let tonnageSum = 0;
+      let distSum = 0;
+
+      jobCards.forEach(c => {
+        const tonMatch = c.metrics.match(/(\d+(\.\d+)?)\s*T/i);
+        if (tonMatch) tonnageSum += parseFloat(tonMatch[1]);
+
+        const distMatch = c.metrics.match(/(\d+(\.\d+)?)\s*(km|hrs|Field Hrs|Shift Hrs)/i);
+        if (distMatch) distSum += parseFloat(distMatch[1]);
+      });
+
+      document.getElementById('globalTonnage').innerText = tonnageSum > 0 ? `${tonnageSum.toFixed(1)} T` : `${jobCards.length * 22} T (Est.)`;
+      document.getElementById('globalDistance').innerText = distSum > 0 ? `${distSum.toFixed(1)} Units` : `${jobCards.length * 50} Km (Est.)`;
+
+      // RENDER RECENT GLOBAL ACTIVITY
+      const tbody = document.getElementById('globalRecentTable');
+      tbody.innerHTML = '';
+      if (jobCards.length === 0) {
+        tbody.innerHTML = `<tr><td colspan="7" style="text-align:center; color: var(--text-muted);">No operational cards logged yet. Select a division above to file your first log.</td></tr>`;
+        return;
+      }
+
+      jobCards.slice(0, 8).forEach(card => {
+        let badgeClass = "badge-completed";
+        if (card.department.includes("Agri")) badgeClass = "badge-agri";
+        if (card.department.includes("Logging")) badgeClass = "badge-logging";
+        if (card.department.includes("Ops")) badgeClass = "badge-ops";
+
+        tbody.innerHTML += `
+          <tr>
+            <td>${card.time}</td>
+            <td><strong>${card.driver}</strong> (${card.driverCode})</td>
+            <td><span class="badge ${badgeClass}">${card.department}</span></td>
+            <td>${card.equipment}</td>
+            <td>${card.payload}</td>
+            <td>${card.route}</td>
+            <td>${card.metrics}</td>
+          </tr>
+        `;
+      });
     }
 
     function submitJobCard(e) {
@@ -513,7 +802,7 @@
         time: new Date().toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'}),
         driver: document.getElementById('cardDriver').value,
         driverCode: document.getElementById('cardDriverCode').value,
-        department: currentUser.department,
+        department: activeSpecialtyDivision,
         equipment: `${document.getElementById('cardRig').value} / ${document.getElementById('cardTrailer').value}`,
         payload: `${document.getElementById('cardCargo').value} (${document.getElementById('cardMetric1').value})`,
         route: `${document.getElementById('cardOrigin').value} ➔ ${document.getElementById('cardDestination').value}`,
@@ -523,15 +812,14 @@
 
       jobCards.unshift(newCard);
       localStorage.setItem('atm_job_cards', JSON.stringify(jobCards));
-      renderJobCards();
       
-      renderDivisionForm(currentUser.department);
-      document.getElementById('cardDriver').value = currentUser.name;
-      document.getElementById('cardDriverCode').value = currentUser.driverCode;
+      closeLogModal();
+      renderJobCards();
+      renderSpecialtyDivisionView();
+      updateLandingDashboard();
+      
       document.getElementById('cardNotes').value = '';
-
-      alert("Specialty Job Card filed under " + currentUser.department);
-      switchTab('history');
+      alert("Job Card filed under " + activeSpecialtyDivision);
     }
 
     function renderJobCards() {
@@ -551,6 +839,37 @@
           <tr>
             <td>${card.time}</td>
             <td><strong>${card.driver}</strong> (${card.driverCode})</td>
+            <td><span class="badge ${badgeClass}">${card.department}</span></td>
+            <td>${card.equipment}</td>
+            <td>${card.payload}</td>
+            <td>${card.route}</td>
+            <td>${card.metrics}</td>
+            <td>${card.notes}</td>
+          </tr>
+        `;
+      });
+    }
+
+    function renderMyLogs() {
+      const tbody = document.getElementById('myLogsTable');
+      tbody.innerHTML = '';
+      if (!currentUser) return;
+
+      const myCards = jobCards.filter(c => c.driverCode === currentUser.driverCode);
+      if (myCards.length === 0) {
+        tbody.innerHTML = `<tr><td colspan="7" style="text-align:center; color: var(--text-muted);">You have not filed any job cards yet.</td></tr>`;
+        return;
+      }
+
+      myCards.forEach(card => {
+        let badgeClass = "badge-completed";
+        if (card.department.includes("Agri")) badgeClass = "badge-agri";
+        if (card.department.includes("Logging")) badgeClass = "badge-logging";
+        if (card.department.includes("Ops")) badgeClass = "badge-ops";
+
+        tbody.innerHTML += `
+          <tr>
+            <td>${card.time}</td>
             <td><span class="badge ${badgeClass}">${card.department}</span></td>
             <td>${card.equipment}</td>
             <td>${card.payload}</td>
