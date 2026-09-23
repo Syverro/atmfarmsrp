@@ -230,11 +230,17 @@
   </div>
 
   <script>
-    const APP_VERSION = "v1.6.0";
+    const APP_VERSION = "v1.7.0";
 
-    let currentUser = JSON.parse(localStorage.getItem('atm_user')) || null;
+    // SESSION STORAGE USAGE: SESSION ENDS WHEN TAB IS CLOSED OR NAVIGATED AWAY
+    let currentUser = JSON.parse(sessionStorage.getItem('atm_user')) || null;
     let jobCards = JSON.parse(localStorage.getItem('atm_job_cards')) || [];
     let scaleLogs = JSON.parse(localStorage.getItem('atm_scale')) || [];
+
+    // AUTO LOGOUT LISTENERS
+    window.addEventListener('beforeunload', () => {
+      sessionStorage.removeItem('atm_user');
+    });
 
     function initVersionTag() {
       document.getElementById('loginVersionDisplay').innerText = APP_VERSION;
@@ -264,7 +270,6 @@
       codeOutput.value = `ATM-${initials}-${lastName}`;
     }
 
-    // RENDER SPECIALTY FORM FIELDS BASED ON DIVISION
     function renderDivisionForm(division) {
       const container = document.getElementById('dynamicFormFields');
       const title = document.getElementById('jobCardTitle');
@@ -461,10 +466,8 @@
         document.getElementById('authOverlay').style.display = 'none';
         document.getElementById('currentUserDisplay').innerText = `${currentUser.name} [${currentUser.driverCode}] (${currentUser.department})`;
         
-        // RENDER SPECIALTY INPUTS FOR USER'S DIVISION
         renderDivisionForm(currentUser.department);
 
-        // AUTOFILL
         document.getElementById('cardDriver').value = currentUser.name;
         document.getElementById('cardDriverCode').value = currentUser.driverCode;
 
@@ -484,12 +487,13 @@
         department: document.getElementById('loginDepartment').value
       };
       
-      localStorage.setItem('atm_user', JSON.stringify(currentUser));
+      // SAVED TO SESSION STORAGE (AUTO CLEARS ON TAB/BROWSER EXIT)
+      sessionStorage.setItem('atm_user', JSON.stringify(currentUser));
       checkAuth();
     }
 
     function logout() {
-      localStorage.removeItem('atm_user');
+      sessionStorage.removeItem('atm_user');
       currentUser = null;
       document.getElementById('loginName').value = '';
       document.getElementById('generatedCode').value = '';
@@ -521,7 +525,6 @@
       localStorage.setItem('atm_job_cards', JSON.stringify(jobCards));
       renderJobCards();
       
-      // RESET FORM
       renderDivisionForm(currentUser.department);
       document.getElementById('cardDriver').value = currentUser.name;
       document.getElementById('cardDriverCode').value = currentUser.driverCode;
