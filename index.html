@@ -28,8 +28,8 @@
 
     /* AUTH MODAL */
     #authOverlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0, 0, 0, 0.96); display: flex; justify-content: center; align-items: center; z-index: 999; padding: 15px; }
-    .auth-card { background: var(--bg-card); border: 2px solid var(--primary-red); padding: 25px 20px; border-radius: 12px; width: 100%; max-width: 400px; text-align: center; }
-    .auth-card h2 { color: var(--pure-white); margin-bottom: 6px; font-size: 1.3rem; }
+    .auth-card { background: var(--bg-card); border: 2px solid var(--primary-red); padding: 25px 20px 15px 20px; border-radius: 12px; width: 100%; max-width: 400px; text-align: center; display: flex; flex-direction: column; justify-content: space-between; }
+    .auth-card h2 { color: var(--pure-white); margin-bottom: 4px; font-size: 1.3rem; }
     .auth-card h2 span { color: var(--primary-red); }
 
     .nav { display: flex; gap: 6px; margin-bottom: 15px; flex-wrap: wrap; }
@@ -68,15 +68,24 @@
     tr:hover { background: var(--bg-hover); }
 
     .badge { padding: 4px 6px; border-radius: 4px; font-size: 0.7rem; font-weight: bold; display: inline-block; white-space: nowrap; }
-    .badge-open { background: var(--accent-amber); color: #000; }
     .badge-completed { background: var(--primary-red); color: #fff; }
     .badge-success { background: var(--accent-green); color: #000; }
     
     .btn-sm { padding: 6px 10px; font-size: 0.75rem; cursor: pointer; border-radius: 4px; border: none; background: var(--primary-red); color: #fff; font-weight: bold; }
     .btn-sm:hover { background: #990303; }
 
-    /* Pulled status notification */
     .status-msg { font-size: 0.8rem; color: var(--accent-green); font-weight: bold; display: none; margin-top: -5px; margin-bottom: 5px; }
+
+    /* Login Version Tag */
+    .login-version-footer {
+      margin-top: 18px;
+      padding-top: 10px;
+      border-top: 1px solid rgba(119, 2, 2, 0.3);
+      font-size: 0.72rem;
+      color: var(--text-muted);
+      letter-spacing: 0.5px;
+      text-transform: uppercase;
+    }
   </style>
 </head>
 <body>
@@ -84,34 +93,41 @@
   <!-- LOGIN / PROFILE MODAL -->
   <div id="authOverlay">
     <div class="auth-card">
-      <h2>AT THE MILE <span>LOGISTICS</span></h2>
-      <p style="color: var(--text-muted); font-size: 0.8rem; margin-bottom: 15px;">DriversHub Member Verification</p>
-      
-      <form onsubmit="handleLogin(event)">
-        <!-- STEP 1: UID INPUT -->
-        <label style="text-align: left; font-size: 0.7rem; color: var(--text-muted);">STEP 1: ENTER DRIVERSHUB UID</label>
-        <div style="display: flex; gap: 8px;">
-          <input type="text" id="loginUid" placeholder="e.g. DH-8402" required>
-          <button type="button" class="btn-secondary" onclick="fetchDriversHubName()">Fetch</button>
-        </div>
-        <div id="statusMsg" class="status-msg">✓ Driver Profile Located</div>
+      <div>
+        <h2>AT THE MILE <span>LOGISTICS</span></h2>
+        <p style="color: var(--text-muted); font-size: 0.8rem; margin-bottom: 15px;">DriversHub Member Verification</p>
+        
+        <form onsubmit="handleLogin(event)">
+          <!-- STEP 1: UID INPUT -->
+          <label style="text-align: left; font-size: 0.7rem; color: var(--text-muted);">STEP 1: ENTER DRIVERSHUB UID</label>
+          <div style="display: flex; gap: 8px;">
+            <input type="text" id="loginUid" placeholder="e.g. DH-8402" required>
+            <button type="button" class="btn-secondary" onclick="fetchDriversHubName()">Fetch</button>
+          </div>
+          <div id="statusMsg" class="status-msg">✓ Driver Profile Located</div>
 
-        <!-- STEP 2: PULLED DRIVER NAME -->
-        <label style="text-align: left; font-size: 0.7rem; color: var(--text-muted); margin-top: 5px;">STEP 2: DRIVER NAME (PULLED FROM HUB)</label>
-        <input type="text" id="loginName" placeholder="Driver Name will pull here..." required readonly style="opacity: 0.8; background: #1a1a1a;">
+          <!-- STEP 2: PULLED DRIVER NAME -->
+          <label style="text-align: left; font-size: 0.7rem; color: var(--text-muted); margin-top: 5px;">STEP 2: DRIVER NAME (PULLED FROM HUB)</label>
+          <input type="text" id="loginName" placeholder="Driver Name will pull here..." required readonly style="opacity: 0.8; background: #1a1a1a;">
 
-        <!-- STEP 3: DIVISION / DEPARTMENT SELECT -->
-        <label style="text-align: left; font-size: 0.7rem; color: var(--text-muted); margin-top: 5px;">STEP 3: SELECT DIVISION</label>
-        <select id="loginDepartment" required>
-          <option value="">Select Division</option>
-          <option value="Logistics & Freight">Logistics & Freight</option>
-          <option value="Agriculture & Farming">Agriculture & Farming</option>
-          <option value="Forestry & Logging">Forestry & Logging</option>
-          <option value="Operations & Dispatch">Operations & Dispatch</option>
-        </select>
+          <!-- STEP 3: DIVISION SELECT -->
+          <label style="text-align: left; font-size: 0.7rem; color: var(--text-muted); margin-top: 5px;">STEP 3: SELECT DIVISION</label>
+          <select id="loginDepartment" required>
+            <option value="">Select Division</option>
+            <option value="Logistics & Freight">Logistics & Freight</option>
+            <option value="Agriculture & Farming">Agriculture & Farming</option>
+            <option value="Forestry & Logging">Forestry & Logging</option>
+            <option value="Operations & Dispatch">Operations & Dispatch</option>
+          </select>
 
-        <button type="submit" class="btn-primary" style="margin-top: 10px;">Enter Main Screen</button>
-      </form>
+          <button type="submit" class="btn-primary" style="margin-top: 10px;">Enter Main Screen</button>
+        </form>
+      </div>
+
+      <!-- AUTO-UPDATE VERSION FOOTER -->
+      <div class="login-version-footer">
+        Portal Version: <span id="loginVersionDisplay" style="color: var(--pure-white); font-weight: bold;">--</span>
+      </div>
     </div>
   </div>
 
@@ -262,17 +278,24 @@
   </div>
 
   <script>
+    // AUTO-UPDATE SYSTEM VERSION NUMBER
+    const APP_VERSION = "v1.4.2";
+
     let currentUser = JSON.parse(localStorage.getItem('atm_user')) || null;
     let jobCards = JSON.parse(localStorage.getItem('atm_job_cards')) || [];
     let scaleLogs = JSON.parse(localStorage.getItem('atm_scale')) || [];
 
-    // Optional: DriversHub UID lookup map
     const driversHubRoster = {
       "DH-1001": "Angus Ferrari",
       "DH-1002": "Syverro",
       "DH-1003": "John Doe",
       "DH-1004": "Alex Smith"
     };
+
+    // Populate version across screen elements on load
+    function initVersionTag() {
+      document.getElementById('loginVersionDisplay').innerText = APP_VERSION;
+    }
 
     function fetchDriversHubName() {
       const uidInput = document.getElementById('loginUid').value.trim().toUpperCase();
@@ -284,11 +307,9 @@
         return;
       }
 
-      // Check lookup table or derive default driver profile name
       if (driversHubRoster[uidInput]) {
         nameInput.value = driversHubRoster[uidInput];
       } else {
-        // Generates formatted driver profile name if UID is not pre-mapped
         nameInput.value = "Driver " + uidInput;
       }
 
@@ -303,7 +324,6 @@
         document.getElementById('authOverlay').style.display = 'none';
         document.getElementById('currentUserDisplay').innerText = `${currentUser.name} [${currentUser.uid}] (${currentUser.department})`;
         
-        // AUTOFILL JOB CARD AND SCALE TICKET
         document.getElementById('cardDriver').value = currentUser.name;
         document.getElementById('cardUid').value = currentUser.uid;
         document.getElementById('cardDept').value = currentUser.department;
@@ -368,7 +388,6 @@
       localStorage.setItem('atm_job_cards', JSON.stringify(jobCards));
       renderJobCards();
       
-      // Clear job entry fields
       document.getElementById('cardRig').value = '';
       document.getElementById('cardTrailer').value = '';
       document.getElementById('cardCargo').value = '';
@@ -441,6 +460,7 @@
       });
     }
 
+    initVersionTag();
     checkAuth();
     renderJobCards();
     renderScale();
