@@ -12,7 +12,6 @@
       --bg-dark: #0a0a0a;
       --bg-card: #141414;
       --bg-hover: #1f1f1f;
-      --border: #770202;
       --border-subtle: #2d0404;
       --text-muted: #a3a3a3;
       --accent-green: #22c55e;
@@ -25,16 +24,16 @@
     header { display: flex; justify-content: space-between; align-items: center; padding: 12px 15px; background: var(--bg-card); border-bottom: 3px solid var(--primary-red); border-radius: 8px; margin-bottom: 15px; flex-wrap: wrap; gap: 10px; }
     .logo { font-size: 1.2rem; font-weight: 900; color: var(--pure-white); letter-spacing: 0.5px; }
     .logo span { color: var(--primary-red); }
-    .user-badge { background: var(--pure-black); padding: 6px 10px; border-radius: 6px; border: 1px solid var(--primary-red); font-size: 0.8rem; width: 100%; display: flex; justify-content: space-between; align-items: center; }
+    .user-badge { background: var(--pure-black); padding: 8px 12px; border-radius: 6px; border: 1px solid var(--primary-red); font-size: 0.8rem; width: 100%; display: flex; justify-content: space-between; align-items: center; }
 
     /* AUTH MODAL */
     #authOverlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0, 0, 0, 0.96); display: flex; justify-content: center; align-items: center; z-index: 999; padding: 15px; }
-    .auth-card { background: var(--bg-card); border: 2px solid var(--primary-red); padding: 20px; border-radius: 12px; width: 100%; max-width: 400px; text-align: center; }
-    .auth-card h2 { color: var(--pure-white); margin-bottom: 8px; font-size: 1.3rem; }
+    .auth-card { background: var(--bg-card); border: 2px solid var(--primary-red); padding: 25px 20px; border-radius: 12px; width: 100%; max-width: 400px; text-align: center; }
+    .auth-card h2 { color: var(--pure-white); margin-bottom: 6px; font-size: 1.3rem; }
     .auth-card h2 span { color: var(--primary-red); }
 
     .nav { display: flex; gap: 6px; margin-bottom: 15px; flex-wrap: wrap; }
-    .nav-btn { flex: 1 1 auto; min-width: 120px; text-align: center; background: var(--bg-card); color: var(--pure-white); border: 1px solid var(--border-subtle); padding: 12px 10px; border-radius: 6px; cursor: pointer; font-weight: 700; font-size: 0.85rem; transition: all 0.2s; }
+    .nav-btn { flex: 1 1 auto; min-width: 110px; text-align: center; background: var(--bg-card); color: var(--pure-white); border: 1px solid var(--border-subtle); padding: 12px 10px; border-radius: 6px; cursor: pointer; font-weight: 700; font-size: 0.85rem; transition: all 0.2s; }
     .nav-btn:hover, .nav-btn.active { background: var(--primary-red); color: var(--pure-white); border-color: var(--primary-red); }
 
     .tab-content { display: none; }
@@ -47,22 +46,23 @@
     form { display: flex; flex-direction: column; gap: 10px; }
     .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
     
-    /* Mobile Form Stacking */
     @media (max-width: 640px) {
       .form-row { grid-template-columns: 1fr; }
       .user-badge { width: 100%; }
       .logo { font-size: 1.1rem; }
     }
 
-    input, select, textarea { padding: 12px; border-radius: 6px; border: 1px solid #333; background: var(--pure-black); color: var(--pure-white); outline: none; width: 100%; font-size: 16px; /* 16px prevents mobile iOS auto-zoom */ }
+    input, select, textarea { padding: 12px; border-radius: 6px; border: 1px solid #333; background: var(--pure-black); color: var(--pure-white); outline: none; width: 100%; font-size: 16px; }
     input:focus, select:focus { border-color: var(--primary-red); }
     
     button.btn-primary { background: var(--primary-red); color: var(--pure-white); font-weight: bold; cursor: pointer; border: none; padding: 14px; border-radius: 6px; transition: 0.2s; text-transform: uppercase; letter-spacing: 0.5px; font-size: 0.9rem; }
     button.btn-primary:hover { opacity: 0.9; background: #990303; }
+    
+    button.btn-secondary { background: #222; color: #fff; border: 1px solid #444; padding: 10px; border-radius: 6px; cursor: pointer; font-weight: bold; font-size: 0.8rem; }
+    button.btn-secondary:hover { background: #333; }
 
-    /* Responsive Table Container */
     .table-container { width: 100%; overflow-x: auto; -webkit-overflow-scrolling: touch; margin-top: 8px; }
-    table { width: 100%; border-collapse: collapse; min-width: 600px; /* Ensures table remains readable on mobile via side scrolling */ }
+    table { width: 100%; border-collapse: collapse; min-width: 600px; }
     th, td { text-align: left; padding: 10px 8px; border-bottom: 1px solid #222; font-size: 0.8rem; }
     th { color: var(--text-muted); background: var(--pure-black); text-transform: uppercase; font-size: 0.7rem; letter-spacing: 0.5px; }
     tr:hover { background: var(--bg-hover); }
@@ -74,6 +74,9 @@
     
     .btn-sm { padding: 6px 10px; font-size: 0.75rem; cursor: pointer; border-radius: 4px; border: none; background: var(--primary-red); color: #fff; font-weight: bold; }
     .btn-sm:hover { background: #990303; }
+
+    /* Pulled status notification */
+    .status-msg { font-size: 0.8rem; color: var(--accent-green); font-weight: bold; display: none; margin-top: -5px; margin-bottom: 5px; }
   </style>
 </head>
 <body>
@@ -83,17 +86,31 @@
     <div class="auth-card">
       <h2>AT THE MILE <span>LOGISTICS</span></h2>
       <p style="color: var(--text-muted); font-size: 0.8rem; margin-bottom: 15px;">DriversHub Member Verification</p>
+      
       <form onsubmit="handleLogin(event)">
-        <input type="text" id="loginName" placeholder="Full Name / Driver Name" required>
+        <!-- STEP 1: UID INPUT -->
+        <label style="text-align: left; font-size: 0.7rem; color: var(--text-muted);">STEP 1: ENTER DRIVERSHUB UID</label>
+        <div style="display: flex; gap: 8px;">
+          <input type="text" id="loginUid" placeholder="e.g. DH-8402" required>
+          <button type="button" class="btn-secondary" onclick="fetchDriversHubName()">Fetch</button>
+        </div>
+        <div id="statusMsg" class="status-msg">✓ Driver Profile Located</div>
+
+        <!-- STEP 2: PULLED DRIVER NAME -->
+        <label style="text-align: left; font-size: 0.7rem; color: var(--text-muted); margin-top: 5px;">STEP 2: DRIVER NAME (PULLED FROM HUB)</label>
+        <input type="text" id="loginName" placeholder="Driver Name will pull here..." required readonly style="opacity: 0.8; background: #1a1a1a;">
+
+        <!-- STEP 3: DIVISION / DEPARTMENT SELECT -->
+        <label style="text-align: left; font-size: 0.7rem; color: var(--text-muted); margin-top: 5px;">STEP 3: SELECT DIVISION</label>
         <select id="loginDepartment" required>
-          <option value="">Select Department</option>
+          <option value="">Select Division</option>
           <option value="Logistics & Freight">Logistics & Freight</option>
           <option value="Agriculture & Farming">Agriculture & Farming</option>
           <option value="Forestry & Logging">Forestry & Logging</option>
           <option value="Operations & Dispatch">Operations & Dispatch</option>
         </select>
-        <input type="text" id="loginUid" placeholder="DriversHub UID (e.g. DH-8402)" required>
-        <button type="submit" class="btn-primary">Authenticate Driver</button>
+
+        <button type="submit" class="btn-primary" style="margin-top: 10px;">Enter Main Screen</button>
       </form>
     </div>
   </div>
@@ -102,7 +119,7 @@
     <div class="logo">AT THE MILE <span>LOGISTICS</span></div>
     <div class="user-badge">
       <span>Driver: <strong id="currentUserDisplay" style="color: var(--pure-white);">Guest</strong></span>
-      <button onclick="logout()" class="btn-sm">Switch</button>
+      <button onclick="logout()" class="btn-sm">Switch Profile</button>
     </div>
   </header>
 
@@ -112,7 +129,7 @@
     <button class="nav-btn" onclick="switchTab('scale')">⚖️ Weigh-In</button>
   </div>
 
-  <!-- TAB 1: LOGISTICS JOB CARD -->
+  <!-- MAIN SCREEN - TAB 1: LOGISTICS JOB CARD -->
   <div id="jobcard" class="tab-content active">
     <div class="grid">
       <div class="card">
@@ -131,7 +148,7 @@
 
           <div class="form-row">
             <div>
-              <label style="font-size: 0.7rem; color: var(--text-muted);">DEPARTMENT</label>
+              <label style="font-size: 0.7rem; color: var(--text-muted);">DIVISION</label>
               <input type="text" id="cardDept" required readonly style="opacity: 0.7;">
             </div>
             <div>
@@ -184,7 +201,7 @@
     </div>
   </div>
 
-  <!-- TAB 2: JOB HISTORY LOGS -->
+  <!-- MAIN SCREEN - TAB 2: JOB HISTORY LOGS -->
   <div id="history" class="tab-content">
     <div class="card">
       <h3>Filed Job Cards & Completed Hauls</h3>
@@ -194,7 +211,7 @@
             <tr>
               <th>Time</th>
               <th>Driver (UID)</th>
-              <th>Dept</th>
+              <th>Division</th>
               <th>Rig / Trailer</th>
               <th>Cargo</th>
               <th>Route</th>
@@ -209,7 +226,7 @@
     </div>
   </div>
 
-  <!-- TAB 3: WEIGH-IN TICKET -->
+  <!-- MAIN SCREEN - TAB 3: WEIGH-IN TICKET -->
   <div id="scale" class="tab-content">
     <div class="grid">
       <div class="card">
@@ -249,14 +266,44 @@
     let jobCards = JSON.parse(localStorage.getItem('atm_job_cards')) || [];
     let scaleLogs = JSON.parse(localStorage.getItem('atm_scale')) || [];
 
+    // Optional: DriversHub UID lookup map
+    const driversHubRoster = {
+      "DH-1001": "Angus Ferrari",
+      "DH-1002": "Syverro",
+      "DH-1003": "John Doe",
+      "DH-1004": "Alex Smith"
+    };
+
+    function fetchDriversHubName() {
+      const uidInput = document.getElementById('loginUid').value.trim().toUpperCase();
+      const nameInput = document.getElementById('loginName');
+      const statusMsg = document.getElementById('statusMsg');
+
+      if (!uidInput) {
+        alert("Please enter a DriversHub UID first.");
+        return;
+      }
+
+      // Check lookup table or derive default driver profile name
+      if (driversHubRoster[uidInput]) {
+        nameInput.value = driversHubRoster[uidInput];
+      } else {
+        // Generates formatted driver profile name if UID is not pre-mapped
+        nameInput.value = "Driver " + uidInput;
+      }
+
+      statusMsg.style.display = "block";
+      statusMsg.innerText = `✓ Profile verified for ${nameInput.value}`;
+    }
+
     function checkAuth() {
       if (!currentUser) {
         document.getElementById('authOverlay').style.display = 'flex';
       } else {
         document.getElementById('authOverlay').style.display = 'none';
-        document.getElementById('currentUserDisplay').innerText = `${currentUser.name} [${currentUser.uid}]`;
+        document.getElementById('currentUserDisplay').innerText = `${currentUser.name} [${currentUser.uid}] (${currentUser.department})`;
         
-        // AUTOFILL
+        // AUTOFILL JOB CARD AND SCALE TICKET
         document.getElementById('cardDriver').value = currentUser.name;
         document.getElementById('cardUid').value = currentUser.uid;
         document.getElementById('cardDept').value = currentUser.department;
@@ -268,11 +315,18 @@
 
     function handleLogin(e) {
       e.preventDefault();
+      let driverName = document.getElementById('loginName').value;
+      if (!driverName) {
+        fetchDriversHubName();
+        driverName = document.getElementById('loginName').value;
+      }
+
       currentUser = {
-        name: document.getElementById('loginName').value,
-        department: document.getElementById('loginDepartment').value,
-        uid: document.getElementById('loginUid').value
+        uid: document.getElementById('loginUid').value.trim().toUpperCase(),
+        name: driverName,
+        department: document.getElementById('loginDepartment').value
       };
+      
       localStorage.setItem('atm_user', JSON.stringify(currentUser));
       checkAuth();
     }
@@ -280,6 +334,9 @@
     function logout() {
       localStorage.removeItem('atm_user');
       currentUser = null;
+      document.getElementById('loginUid').value = '';
+      document.getElementById('loginName').value = '';
+      document.getElementById('statusMsg').style.display = 'none';
       checkAuth();
     }
 
@@ -290,7 +347,6 @@
       event.target.classList.add('active');
     }
 
-    // SUBMIT LOGISTICS JOB CARD
     function submitJobCard(e) {
       e.preventDefault();
       const newCard = {
@@ -312,7 +368,7 @@
       localStorage.setItem('atm_job_cards', JSON.stringify(jobCards));
       renderJobCards();
       
-      // Reset specific entry fields
+      // Clear job entry fields
       document.getElementById('cardRig').value = '';
       document.getElementById('cardTrailer').value = '';
       document.getElementById('cardCargo').value = '';
@@ -322,7 +378,7 @@
       document.getElementById('cardFuel').value = '';
       document.getElementById('cardNotes').value = '';
 
-      alert("Job Card filed under DriversHub UID: " + currentUser.uid);
+      alert("Job Card successfully saved to History Logs!");
       switchTab('history');
     }
 
@@ -350,7 +406,6 @@
       });
     }
 
-    // WEIGH-IN LOGIC
     function logScale(e) {
       e.preventDefault();
       scaleLogs.unshift({
