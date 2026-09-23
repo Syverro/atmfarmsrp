@@ -59,7 +59,7 @@
     button.btn-primary:hover { opacity: 0.9; background: #990303; }
 
     .table-container { width: 100%; overflow-x: auto; -webkit-overflow-scrolling: touch; margin-top: 8px; }
-    table { width: 100%; border-collapse: collapse; min-width: 600px; }
+    table { width: 100%; border-collapse: collapse; min-width: 650px; }
     th, td { text-align: left; padding: 10px 8px; border-bottom: 1px solid #222; font-size: 0.8rem; }
     th { color: var(--text-muted); background: var(--pure-black); text-transform: uppercase; font-size: 0.7rem; letter-spacing: 0.5px; }
     tr:hover { background: var(--bg-hover); }
@@ -67,11 +67,12 @@
     .badge { padding: 4px 6px; border-radius: 4px; font-size: 0.7rem; font-weight: bold; display: inline-block; white-space: nowrap; }
     .badge-completed { background: var(--primary-red); color: #fff; }
     .badge-success { background: var(--accent-green); color: #000; }
-    
+    .badge-agri { background: #15803d; color: #fff; }
+    .badge-logging { background: #b45309; color: #fff; }
+    .badge-ops { background: #1d4ed8; color: #fff; }
+
     .btn-sm { padding: 6px 10px; font-size: 0.75rem; cursor: pointer; border-radius: 4px; border: none; background: var(--primary-red); color: #fff; font-weight: bold; }
     .btn-sm:hover { background: #990303; }
-
-    .status-msg { font-size: 0.8rem; color: var(--accent-green); font-weight: bold; display: none; margin-top: -5px; margin-bottom: 5px; }
 
     .login-version-footer {
       margin-top: 18px;
@@ -106,17 +107,16 @@
           <label style="text-align: left; font-size: 0.7rem; color: var(--text-muted); margin-top: 5px;">STEP 3: SELECT DIVISION</label>
           <select id="loginDepartment" required>
             <option value="">Select Division</option>
-            <option value="Logistics & Freight">Logistics & Freight</option>
-            <option value="Agriculture & Farming">Agriculture & Farming</option>
-            <option value="Forestry & Logging">Forestry & Logging</option>
-            <option value="Operations & Dispatch">Operations & Dispatch</option>
+            <option value="Agriculture & Farming">🌾 Agriculture & Farming</option>
+            <option value="Forestry & Logging">🌲 Forestry & Logging</option>
+            <option value="Logistics & Freight">🚛 Logistics & Freight</option>
+            <option value="Operations & Dispatch">📡 Operations & Dispatch</option>
           </select>
 
           <button type="submit" class="btn-primary" style="margin-top: 10px;">Enter Main Screen</button>
         </form>
       </div>
 
-      <!-- AUTO-UPDATE VERSION FOOTER -->
       <div class="login-version-footer">
         Portal Version: <span id="loginVersionDisplay" style="color: var(--pure-white); font-weight: bold;">--</span>
       </div>
@@ -132,17 +132,19 @@
   </header>
 
   <div class="nav">
-    <button class="nav-btn active" onclick="switchTab('jobcard')">📋 Job Card</button>
+    <button class="nav-btn active" onclick="switchTab('jobcard')">📋 Specialty Job Card</button>
     <button class="nav-btn" onclick="switchTab('history')">📂 History Logs</button>
     <button class="nav-btn" onclick="switchTab('scale')">⚖️ Weigh-In</button>
   </div>
 
-  <!-- MAIN SCREEN - TAB 1: LOGISTICS JOB CARD -->
+  <!-- MAIN SCREEN - TAB 1: DYNAMIC DIVISION JOB CARD -->
   <div id="jobcard" class="tab-content active">
     <div class="grid">
       <div class="card">
-        <h3>Complete Driver Job Card <span style="font-size: 0.75rem; color: var(--text-muted);">ATM PORTAL</span></h3>
+        <h3><span id="jobCardTitle">Job Card</span> <span style="font-size: 0.75rem; color: var(--text-muted);" id="divisionSubBadge">ATM PORTAL</span></h3>
         <form id="jobCardForm" onsubmit="submitJobCard(event)">
+          
+          <!-- FIXED DRIVER DETAILS -->
           <div class="form-row">
             <div>
               <label style="font-size: 0.7rem; color: var(--text-muted);">DRIVER NAME</label>
@@ -154,56 +156,15 @@
             </div>
           </div>
 
-          <div class="form-row">
-            <div>
-              <label style="font-size: 0.7rem; color: var(--text-muted);">DIVISION</label>
-              <input type="text" id="cardDept" required readonly style="opacity: 0.7;">
-            </div>
-            <div>
-              <label style="font-size: 0.7rem; color: var(--text-muted);">RIG / TRUCK ID USED</label>
-              <input type="text" id="cardRig" placeholder="e.g. Kenworth T680 #04" required>
-            </div>
-          </div>
-
-          <div class="form-row">
-            <div>
-              <label style="font-size: 0.7rem; color: var(--text-muted);">TRAILER TYPE / ID</label>
-              <input type="text" id="cardTrailer" placeholder="e.g. 53ft Log Trailer / Grain Hopper" required>
-            </div>
-            <div>
-              <label style="font-size: 0.7rem; color: var(--text-muted);">CARGO CARRIED</label>
-              <input type="text" id="cardCargo" placeholder="e.g. 45 T Oak Logs / 80k L Wheat" required>
-            </div>
-          </div>
-
-          <div class="form-row">
-            <div>
-              <label style="font-size: 0.7rem; color: var(--text-muted);">PICKUP LOCATION</label>
-              <input type="text" id="cardOrigin" placeholder="Origin Site" required>
-            </div>
-            <div>
-              <label style="font-size: 0.7rem; color: var(--text-muted);">DESTINATION</label>
-              <input type="text" id="cardDestination" placeholder="Dropoff Location" required>
-            </div>
-          </div>
-
-          <div class="form-row">
-            <div>
-              <label style="font-size: 0.7rem; color: var(--text-muted);">DISTANCE / ENGINE HOURS</label>
-              <input type="text" id="cardDistance" placeholder="e.g. 45 km / 2.5 hrs" required>
-            </div>
-            <div>
-              <label style="font-size: 0.7rem; color: var(--text-muted);">FUEL / OPERATING EXPENSE ($)</label>
-              <input type="number" id="cardFuel" placeholder="0 if none" required>
-            </div>
-          </div>
+          <!-- DYNAMIC SPECIALTY FIELDS WRAPPER -->
+          <div id="dynamicFormFields"></div>
 
           <div>
-            <label style="font-size: 0.7rem; color: var(--text-muted);">DELIVERY / OPERATIONAL NOTES</label>
-            <input type="text" id="cardNotes" placeholder="e.g. Off-road delivery, cleared by dispatch.">
+            <label style="font-size: 0.7rem; color: var(--text-muted);">FIELD / SHIFT NOTES & COMMENTS</label>
+            <input type="text" id="cardNotes" placeholder="e.g. Cleared by site dispatch, weather condition updates...">
           </div>
 
-          <button type="submit" class="btn-primary">File Official Job Card</button>
+          <button type="submit" class="btn-primary" id="submitBtnText">File Official Job Card</button>
         </form>
       </div>
     </div>
@@ -212,19 +173,18 @@
   <!-- MAIN SCREEN - TAB 2: JOB HISTORY LOGS -->
   <div id="history" class="tab-content">
     <div class="card">
-      <h3>Filed Job Cards & Completed Hauls</h3>
+      <h3>Filed Job Cards & Operations Logs</h3>
       <div class="table-container">
         <table>
           <thead>
             <tr>
               <th>Time</th>
-              <th>Driver (Login Code)</th>
+              <th>Driver (Code)</th>
               <th>Division</th>
-              <th>Rig / Trailer</th>
-              <th>Cargo</th>
-              <th>Route</th>
-              <th>Dist / Hrs</th>
-              <th>Fuel</th>
+              <th>Equipment / Rig</th>
+              <th>Payload / Task</th>
+              <th>Location / Route</th>
+              <th>Metrics / Distance</th>
               <th>Notes</th>
             </tr>
           </thead>
@@ -242,7 +202,7 @@
         <form id="scaleForm" onsubmit="logScale(event)">
           <input type="text" id="scaleDriver" placeholder="Driver Name" required readonly style="opacity: 0.7;">
           <input type="text" id="scaleCode" placeholder="Driver Code" required readonly style="opacity: 0.7;">
-          <input type="text" id="scaleVehicle" placeholder="Rig ID (e.g. KW #04)" required>
+          <input type="text" id="scaleVehicle" placeholder="Rig / Machine ID (e.g. KW #04)" required>
           <input type="number" id="scaleWeight" placeholder="Gross Weight (Tons)" required>
           <input type="number" id="scaleLimit" placeholder="Max Limit (Tons)" value="42" required>
           <button type="submit" class="btn-primary">Submit Scale Ticket</button>
@@ -270,8 +230,7 @@
   </div>
 
   <script>
-    // VERSION NUMBER
-    const APP_VERSION = "v1.5.0";
+    const APP_VERSION = "v1.6.0";
 
     let currentUser = JSON.parse(localStorage.getItem('atm_user')) || null;
     let jobCards = JSON.parse(localStorage.getItem('atm_job_cards')) || [];
@@ -281,7 +240,6 @@
       document.getElementById('loginVersionDisplay').innerText = APP_VERSION;
     }
 
-    // AUTOMATIC LOGIN ID GENERATOR BASED ON NAME
     function generateDriverCode() {
       const name = document.getElementById('loginName').value.trim();
       const codeOutput = document.getElementById('generatedCode');
@@ -296,16 +254,204 @@
       let lastName = "";
 
       if (parts.length === 1) {
-        // Single word username e.g. "Syverro" -> "ATM-SY-SYVERRO"
         initials = parts[0].substring(0, 2).toUpperCase();
         lastName = parts[0].toUpperCase();
       } else {
-        // Full Name e.g. "Angus Ferrari" -> "ATM-AF-FERRARI"
         initials = (parts[0][0] + parts[parts.length - 1][0]).toUpperCase();
         lastName = parts[parts.length - 1].toUpperCase();
       }
 
       codeOutput.value = `ATM-${initials}-${lastName}`;
+    }
+
+    // RENDER SPECIALTY FORM FIELDS BASED ON DIVISION
+    function renderDivisionForm(division) {
+      const container = document.getElementById('dynamicFormFields');
+      const title = document.getElementById('jobCardTitle');
+      const badge = document.getElementById('divisionSubBadge');
+
+      if (division === "Agriculture & Farming") {
+        title.innerText = "🌾 Agricultural Haul & Field Card";
+        badge.innerText = "AGRI DIVISION";
+        container.innerHTML = `
+          <div class="form-row">
+            <div>
+              <label style="font-size: 0.7rem; color: var(--text-muted);">TRACTOR / COMBINE / RIG ID</label>
+              <input type="text" id="cardRig" placeholder="e.g. John Deere 8R / Case IH #02" required>
+            </div>
+            <div>
+              <label style="font-size: 0.7rem; color: var(--text-muted);">IMPLEMENT / TRAILER ATTACHMENT</label>
+              <input type="text" id="cardTrailer" placeholder="e.g. Chaser Bin / Grain Hopper 40ft" required>
+            </div>
+          </div>
+          <div class="form-row">
+            <div>
+              <label style="font-size: 0.7rem; color: var(--text-muted);">CROP TYPE / AGRI COMMODITY</label>
+              <input type="text" id="cardCargo" placeholder="e.g. Wheat Grain / Silage / Hay Bales" required>
+            </div>
+            <div>
+              <label style="font-size: 0.7rem; color: var(--text-muted);">MOISTURE / QUALITY GRADE</label>
+              <input type="text" id="cardMetric1" placeholder="e.g. 12.5% Moisture / Feed Grade" required>
+            </div>
+          </div>
+          <div class="form-row">
+            <div>
+              <label style="font-size: 0.7rem; color: var(--text-muted);">PADDOCK / FIELD LOCATION</label>
+              <input type="text" id="cardOrigin" placeholder="e.g. North Paddock 04" required>
+            </div>
+            <div>
+              <label style="font-size: 0.7rem; color: var(--text-muted);">DESTINATION SILO / STORAGE</label>
+              <input type="text" id="cardDestination" placeholder="e.g. Main Grain Terminal / Shed B" required>
+            </div>
+          </div>
+          <div class="form-row">
+            <div>
+              <label style="font-size: 0.7rem; color: var(--text-muted);">TOTAL TONNAGE / BALES LOADED</label>
+              <input type="text" id="cardMetric2" placeholder="e.g. 38 Tons / 45 Bales" required>
+            </div>
+            <div>
+              <label style="font-size: 0.7rem; color: var(--text-muted);">ENGINE / FIELD HOURS</label>
+              <input type="text" id="cardDistance" placeholder="e.g. 4.2 Field Hrs" required>
+            </div>
+          </div>
+        `;
+      } else if (division === "Forestry & Logging") {
+        title.innerText = "🌲 Forestry Logging Card";
+        badge.innerText = "LOGGING DIVISION";
+        container.innerHTML = `
+          <div class="form-row">
+            <div>
+              <label style="font-size: 0.7rem; color: var(--text-muted);">LOG TRUCK / RIG ID</label>
+              <input type="text" id="cardRig" placeholder="e.g. Kenworth T909 Log Spec" required>
+            </div>
+            <div>
+              <label style="font-size: 0.7rem; color: var(--text-muted);">LOG TRAILER / BOLSTER TYPE</label>
+              <input type="text" id="cardTrailer" placeholder="e.g. Tri-Axle Log Bolster Trailer" required>
+            </div>
+          </div>
+          <div class="form-row">
+            <div>
+              <label style="font-size: 0.7rem; color: var(--text-muted);">TIMBER SPECIES & GRADE</label>
+              <input type="text" id="cardCargo" placeholder="e.g. Sawlog Pine / Hardwood Pulp" required>
+            </div>
+            <div>
+              <label style="font-size: 0.7rem; color: var(--text-muted);">LOADER MACHINE ID</label>
+              <input type="text" id="cardMetric1" placeholder="e.g. CAT 559D Loader" required>
+            </div>
+          </div>
+          <div class="form-row">
+            <div>
+              <label style="font-size: 0.7rem; color: var(--text-muted);">COUPE / FOREST SECTOR</label>
+              <input type="text" id="cardOrigin" placeholder="e.g. Coupe 802-A Pine Ridge" required>
+            </div>
+            <div>
+              <label style="font-size: 0.7rem; color: var(--text-muted);">DESTINATION PAPER / SAW MILL</label>
+              <input type="text" id="cardDestination" placeholder="e.g. Colac Sawmill Plant" required>
+            </div>
+          </div>
+          <div class="form-row">
+            <div>
+              <label style="font-size: 0.7rem; color: var(--text-muted);">LOG COUNT / GROSS TONNAGE</label>
+              <input type="text" id="cardMetric2" placeholder="e.g. 28 Logs / 44.5 Tons" required>
+            </div>
+            <div>
+              <label style="font-size: 0.7rem; color: var(--text-muted);">HAUL DISTANCE (KM)</label>
+              <input type="text" id="cardDistance" placeholder="e.g. 62 km" required>
+            </div>
+          </div>
+        `;
+      } else if (division === "Operations & Dispatch") {
+        title.innerText = "📡 Operations & Dispatch Log";
+        badge.innerText = "OPS DIVISION";
+        container.innerHTML = `
+          <div class="form-row">
+            <div>
+              <label style="font-size: 0.7rem; color: var(--text-muted);">DISPATCH COMMAND VEHICLE / STATION</label>
+              <input type="text" id="cardRig" placeholder="e.g. Dispatch Console 01 / Command Van" required>
+            </div>
+            <div>
+              <label style="font-size: 0.7rem; color: var(--text-muted);">ASSIGNED FLEET / SECTOR</label>
+              <input type="text" id="cardTrailer" placeholder="e.g. North Zone Freight & Agri Units" required>
+            </div>
+          </div>
+          <div class="form-row">
+            <div>
+              <label style="font-size: 0.7rem; color: var(--text-muted);">SHIFT FOCUS / MAIN TASK</label>
+              <input type="text" id="cardCargo" placeholder="e.g. Convoy Routing & Traffic Management" required>
+            </div>
+            <div>
+              <label style="font-size: 0.7rem; color: var(--text-muted);">ACTIVE UNITS COORDINATED</label>
+              <input type="text" id="cardMetric1" placeholder="e.g. 8 Rigs Active" required>
+            </div>
+          </div>
+          <div class="form-row">
+            <div>
+              <label style="font-size: 0.7rem; color: var(--text-muted);">PRIMARY CONTROL REGION</label>
+              <input type="text" id="cardOrigin" placeholder="e.g. Highway 1 Corridor" required>
+            </div>
+            <div>
+              <label style="font-size: 0.7rem; color: var(--text-muted);">STATUS REPORT</label>
+              <input type="text" id="cardDestination" placeholder="e.g. All Routes Clear / Roadworks Sector B" required>
+            </div>
+          </div>
+          <div class="form-row">
+            <div>
+              <label style="font-size: 0.7rem; color: var(--text-muted);">INCIDENTS LOGGED</label>
+              <input type="text" id="cardMetric2" placeholder="e.g. 0 Incidents / 1 Breakdown Assisted" required>
+            </div>
+            <div>
+              <label style="font-size: 0.7rem; color: var(--text-muted);">SHIFT HOURS</label>
+              <input type="text" id="cardDistance" placeholder="e.g. 8.0 Shift Hrs" required>
+            </div>
+          </div>
+        `;
+      } else {
+        // DEFAULT: LOGISTICS & FREIGHT
+        title.innerText = "🚛 Logistics & Freight Haul Card";
+        badge.innerText = "FREIGHT DIVISION";
+        container.innerHTML = `
+          <div class="form-row">
+            <div>
+              <label style="font-size: 0.7rem; color: var(--text-muted);">RIG / TRUCK ID USED</label>
+              <input type="text" id="cardRig" placeholder="e.g. Kenworth T680 #04" required>
+            </div>
+            <div>
+              <label style="font-size: 0.7rem; color: var(--text-muted);">TRAILER TYPE / ID</label>
+              <input type="text" id="cardTrailer" placeholder="e.g. 53ft Dry Van / Reefer" required>
+            </div>
+          </div>
+          <div class="form-row">
+            <div>
+              <label style="font-size: 0.7rem; color: var(--text-muted);">CARGO CARRIED</label>
+              <input type="text" id="cardCargo" placeholder="e.g. Palletized Goods / Machinery" required>
+            </div>
+            <div>
+              <label style="font-size: 0.7rem; color: var(--text-muted);">CARGO WEIGHT / UNITS</label>
+              <input type="text" id="cardMetric1" placeholder="e.g. 24 Tons / 22 Pallets" required>
+            </div>
+          </div>
+          <div class="form-row">
+            <div>
+              <label style="font-size: 0.7rem; color: var(--text-muted);">PICKUP LOCATION</label>
+              <input type="text" id="cardOrigin" placeholder="Origin Depot" required>
+            </div>
+            <div>
+              <label style="font-size: 0.7rem; color: var(--text-muted);">DESTINATION LOCATION</label>
+              <input type="text" id="cardDestination" placeholder="Dropoff Freight Hub" required>
+            </div>
+          </div>
+          <div class="form-row">
+            <div>
+              <label style="font-size: 0.7rem; color: var(--text-muted);">FUEL / OPERATING EXPENSE ($)</label>
+              <input type="text" id="cardMetric2" placeholder="e.g. $180 Fuel" required>
+            </div>
+            <div>
+              <label style="font-size: 0.7rem; color: var(--text-muted);">HAUL DISTANCE (KM)</label>
+              <input type="text" id="cardDistance" placeholder="e.g. 140 km" required>
+            </div>
+          </div>
+        `;
+      }
     }
 
     function checkAuth() {
@@ -315,10 +461,12 @@
         document.getElementById('authOverlay').style.display = 'none';
         document.getElementById('currentUserDisplay').innerText = `${currentUser.name} [${currentUser.driverCode}] (${currentUser.department})`;
         
+        // RENDER SPECIALTY INPUTS FOR USER'S DIVISION
+        renderDivisionForm(currentUser.department);
+
         // AUTOFILL
         document.getElementById('cardDriver').value = currentUser.name;
         document.getElementById('cardDriverCode').value = currentUser.driverCode;
-        document.getElementById('cardDept').value = currentUser.department;
 
         document.getElementById('scaleDriver').value = currentUser.name;
         document.getElementById('scaleCode').value = currentUser.driverCode;
@@ -361,14 +509,11 @@
         time: new Date().toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'}),
         driver: document.getElementById('cardDriver').value,
         driverCode: document.getElementById('cardDriverCode').value,
-        department: document.getElementById('cardDept').value,
-        rig: document.getElementById('cardRig').value,
-        trailer: document.getElementById('cardTrailer').value,
-        cargo: document.getElementById('cardCargo').value,
-        origin: document.getElementById('cardOrigin').value,
-        destination: document.getElementById('cardDestination').value,
-        distance: document.getElementById('cardDistance').value,
-        fuel: parseFloat(document.getElementById('cardFuel').value) || 0,
+        department: currentUser.department,
+        equipment: `${document.getElementById('cardRig').value} / ${document.getElementById('cardTrailer').value}`,
+        payload: `${document.getElementById('cardCargo').value} (${document.getElementById('cardMetric1').value})`,
+        route: `${document.getElementById('cardOrigin').value} ➔ ${document.getElementById('cardDestination').value}`,
+        metrics: `${document.getElementById('cardMetric2').value} | ${document.getElementById('cardDistance').value}`,
         notes: document.getElementById('cardNotes').value || 'None'
       };
 
@@ -376,16 +521,13 @@
       localStorage.setItem('atm_job_cards', JSON.stringify(jobCards));
       renderJobCards();
       
-      document.getElementById('cardRig').value = '';
-      document.getElementById('cardTrailer').value = '';
-      document.getElementById('cardCargo').value = '';
-      document.getElementById('cardOrigin').value = '';
-      document.getElementById('cardDestination').value = '';
-      document.getElementById('cardDistance').value = '';
-      document.getElementById('cardFuel').value = '';
+      // RESET FORM
+      renderDivisionForm(currentUser.department);
+      document.getElementById('cardDriver').value = currentUser.name;
+      document.getElementById('cardDriverCode').value = currentUser.driverCode;
       document.getElementById('cardNotes').value = '';
 
-      alert("Job Card successfully saved under Driver ID: " + currentUser.driverCode);
+      alert("Specialty Job Card filed under " + currentUser.department);
       switchTab('history');
     }
 
@@ -393,20 +535,24 @@
       const tbody = document.getElementById('jobCardTable');
       tbody.innerHTML = '';
       if (jobCards.length === 0) {
-        tbody.innerHTML = `<tr><td colspan="9" style="text-align:center; color: var(--text-muted);">No job cards filed yet.</td></tr>`;
+        tbody.innerHTML = `<tr><td colspan="8" style="text-align:center; color: var(--text-muted);">No job cards filed yet.</td></tr>`;
         return;
       }
       jobCards.forEach(card => {
+        let badgeClass = "badge-completed";
+        if (card.department.includes("Agri")) badgeClass = "badge-agri";
+        if (card.department.includes("Logging")) badgeClass = "badge-logging";
+        if (card.department.includes("Ops")) badgeClass = "badge-ops";
+
         tbody.innerHTML += `
           <tr>
             <td>${card.time}</td>
             <td><strong>${card.driver}</strong> (${card.driverCode})</td>
-            <td>${card.department}</td>
-            <td>${card.rig} / ${card.trailer}</td>
-            <td><span class="badge badge-completed">${card.cargo}</span></td>
-            <td>${card.origin} ➔ ${card.destination}</td>
-            <td>${card.distance}</td>
-            <td>$${card.fuel}</td>
+            <td><span class="badge ${badgeClass}">${card.department}</span></td>
+            <td>${card.equipment}</td>
+            <td>${card.payload}</td>
+            <td>${card.route}</td>
+            <td>${card.metrics}</td>
             <td>${card.notes}</td>
           </tr>
         `;
